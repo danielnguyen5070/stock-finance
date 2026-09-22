@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     )
     request_timeout_seconds: float = 10.0
 
+    # DeepSeek (OpenAI-compatible)
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-flash"
+    deepseek_base_url: str = "https://api.deepseek.com"
+    llm_timeout_seconds: float = 60.0
+
 
 @lru_cache
 def get_settings() -> Settings:

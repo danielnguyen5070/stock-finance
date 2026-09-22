@@ -1,4 +1,4 @@
-"""Shared exception types for market data services."""
+"""Shared exception types for market data and LLM services."""
 
 
 class MarketServiceError(Exception):
@@ -15,3 +15,15 @@ class SymbolNotFoundError(MarketServiceError):
 
 class StockDataError(MarketServiceError):
     """Raised when stock price data cannot be retrieved."""
+
+
+class LLMError(Exception):
+    """Base error for LLM client failures."""
+
+
+class LLMConfigError(LLMError):
+    """Raised when LLM credentials or settings are missing/invalid."""
+
+
+class LLMRequestError(LLMError):
+    """Raised when the LLM API request fails."""

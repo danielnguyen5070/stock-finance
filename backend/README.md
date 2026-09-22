@@ -34,6 +34,13 @@ python scripts/test_stock.py
 python scripts/test_stock.py --company "Apple"
 ```
 
+With ``DEEPSEEK_API_KEY`` set in `.env`:
+
+```bash
+python scripts/test_llm.py
+python scripts/test_llm.py --prompt "Say hello in one word"
+```
+
 ## Layout
 
 ```
@@ -42,10 +49,12 @@ backend/
 │   ├── main.py              # FastAPI app
 │   ├── config.py            # pydantic-settings / .env
 │   ├── exceptions.py
+│   ├── ai/openai_client.py  # DeepSeek via OpenAI SDK
 │   ├── api/routes/stocks.py # HTTP endpoints
 │   ├── models/stock.py      # TypedDict shapes
 │   └── services/stock.py    # get_symbol, get_stock_price
-├── scripts/test_stock.py    # CLI smoke test
+├── scripts/test_stock.py    # CLI smoke test (stocks)
+├── scripts/test_llm.py      # CLI smoke test (DeepSeek)
 ├── .env.example
 └── requirements.txt
 ```

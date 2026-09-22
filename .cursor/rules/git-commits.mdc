@@ -1,0 +1,49 @@
+---
+description: Git commit safety and message conventions for this repo
+alwaysApply: true
+---
+
+# Git Commits
+
+Only create commits when the user explicitly asks.
+
+## Safety
+
+- Never update git config
+- Never use destructive/irreversible commands (`push --force`, `hard reset`, etc.) unless explicitly requested
+- Never skip hooks (`--no-verify`, `--no-gpg-sign`, etc.) unless explicitly requested
+- Never force-push to `main`/`master`; warn if asked
+- Never use interactive flags (`-i`) like `git rebase -i` or `git add -i`
+- Do not push unless explicitly asked
+- Do not commit secrets (`.env`, credentials, keys); warn if requested
+
+## Amend — only when all are true
+
+1. User explicitly requested amend, OR the commit succeeded but a hook auto-modified files that must be included
+2. HEAD commit was created by you in this conversation
+3. Commit has not been pushed
+
+If a commit failed or was rejected by a hook: fix the issue and create a **new** commit (never amend).
+
+## Commit workflow
+
+When asked to commit:
+
+1. In parallel: `git status`, `git diff` (staged + unstaged), `git log` (recent style)
+2. Stage relevant files only; skip secrets and junk (`.DS_Store`, build artifacts)
+3. Draft a concise 1–2 sentence message focused on **why**, not a file laundry list
+4. Commit with a HEREDOC message, then verify with `git status`
+
+```bash
+git commit -m "$(cat <<'EOF'
+Short summary of why this change exists.
+
+EOF
+)"
+```
+
+## Message style
+
+- Prefer imperative mood: "Add…", "Fix…", "Move…"
+- Match recent repo history when a clear style exists
+- Example: `Restructure into frontend/backend and add Market AI chat UI.`

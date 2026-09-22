@@ -22,6 +22,7 @@ uvicorn app.main:app --reload --port 8000
 
 - Health: [http://localhost:8000/health](http://localhost:8000/health)
 - Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Chat: `POST /chat` with `{"message": "..."}`
 - Symbol: `GET /stocks/symbol?company=Nvidia`
 - Price: `GET /stocks/NVDA/price`
 
@@ -55,7 +56,9 @@ backend/
 │   │   ├── openai_client.py # DeepSeek via OpenAI SDK
 │   │   ├── tools.py         # OpenAI tool defs + FUNCTION_MAP
 │   │   └── agent.py         # Tool-calling loop (run_agent)
-│   ├── api/routes/stocks.py # HTTP endpoints
+│   ├── api/
+│   │   ├── chat.py          # POST /chat
+│   │   └── routes/stocks.py # Stock HTTP endpoints
 │   ├── models/stock.py      # TypedDict shapes
 │   └── services/stock.py    # get_symbol, get_stock_price
 ├── scripts/test_stock.py    # CLI smoke test (stocks)

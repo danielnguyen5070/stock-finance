@@ -23,6 +23,7 @@ uvicorn app.main:app --reload --port 8000
 - Health: [http://localhost:8000/health](http://localhost:8000/health)
 - Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 - Chat: `POST /chat` with `{"message": "..."}`
+- Chat (SSE): `POST /chat/stream` with `{"message": "..."}`
 - Symbol: `GET /stocks/symbol?company=Nvidia`
 - Price: `GET /stocks/NVDA/price`
 
@@ -42,6 +43,15 @@ python scripts/test_llm.py
 python scripts/test_llm.py --prompt "Say hello in one word"
 python scripts/test_agent.py
 python scripts/test_agent.py --question "What is Apple's stock price?" --verbose
+python scripts/test_agent_stream.py --verbose
+```
+
+Example SSE request:
+
+```bash
+curl -N -X POST http://localhost:8000/chat/stream \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"Giá cổ phiếu Nvidia hiện tại là bao nhiêu?"}'
 ```
 
 ## Layout
@@ -55,15 +65,16 @@ backend/
 │   ├── ai/
 │   │   ├── openai_client.py # DeepSeek via OpenAI SDK
 │   │   ├── tools.py         # OpenAI tool defs + FUNCTION_MAP
-│   │   └── agent.py         # Tool-calling loop (run_agent)
+│   │   └── agent.py         # Tool-calling loop (run_agent / stream)
 │   ├── api/
-│   │   ├── chat.py          # POST /chat
+│   │   ├── chat.py          # POST /chat and /chat/stream
 │   │   └── routes/stocks.py # Stock HTTP endpoints
 │   ├── models/stock.py      # TypedDict shapes
 │   └── services/stock.py    # get_symbol, get_stock_price
 ├── scripts/test_stock.py    # CLI smoke test (stocks)
 ├── scripts/test_llm.py      # CLI smoke test (DeepSeek)
 ├── scripts/test_agent.py    # CLI smoke test (tool-calling agent)
+├── scripts/test_agent_stream.py
 ├── .env.example
 └── requirements.txt
 ```

@@ -20,8 +20,8 @@ source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-- Health: [http://localhost:8000/health](http://localhost:8000/health)
-- Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Health: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
+- Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - Chat: `POST /chat` with `{"message": "..."}`
 - Chat (SSE): `POST /chat/stream` with `{"message": "..."}`
 - Symbol: `GET /stocks/symbol?company=Nvidia`
@@ -49,7 +49,7 @@ python scripts/test_agent_stream.py --verbose
 Example SSE request:
 
 ```bash
-curl -N -X POST http://localhost:8000/chat/stream \
+curl -N -X POST http://127.0.0.1:8000/chat/stream \
   -H 'Content-Type: application/json' \
   -d '{"message":"Giá cổ phiếu Nvidia hiện tại là bao nhiêu?"}'
 ```

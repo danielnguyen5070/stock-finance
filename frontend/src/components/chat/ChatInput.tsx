@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 import { useEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  onStop?: () => void;
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
@@ -19,8 +20,9 @@ export function ChatInput({
   value,
   onChange,
   onSubmit,
+  onStop,
   isLoading = false,
-  placeholder = "Ask about stocks or crypto…",
+  placeholder = "Ask about a stock…",
   className,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -34,7 +36,8 @@ export function ChatInput({
 
   function handleSubmit(event?: FormEvent) {
     event?.preventDefault();
-    if (!value.trim() || isLoading) return;
+    if (isLoading) return;
+    if (!value.trim()) return;
     onSubmit();
   }
 
@@ -65,18 +68,31 @@ export function ChatInput({
           aria-label="Chat message"
           className="max-h-40 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60"
         />
-        <Button
-          type="submit"
-          size="icon"
-          disabled={!value.trim() || isLoading}
-          aria-label={isLoading ? "Sending" : "Send message"}
-          className="shrink-0 rounded-xl"
-        >
-          <ArrowUp className="size-4" />
-        </Button>
+        {isLoading ? (
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            onClick={onStop}
+            aria-label="Stop generating"
+            className="shrink-0 rounded-xl"
+          >
+            <Square className="size-3.5 fill-current" />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!value.trim()}
+            aria-label="Send message"
+            className="shrink-0 rounded-xl"
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+        )}
       </div>
       <p className="mx-auto mt-2 max-w-2xl text-center text-[11px] text-muted-foreground">
-        Mock responses for now. Enter to send, Shift+Enter for a new line.
+        Live Market AI via FastAPI. Enter to send, Shift+Enter for a new line.
       </p>
     </form>
   );

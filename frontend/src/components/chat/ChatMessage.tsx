@@ -16,10 +16,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <div
-      className={cn(
-        "flex w-full",
-        isUser ? "justify-end" : "justify-start"
-      )}
+      className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}
     >
       <div
         className={cn(
@@ -61,8 +58,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
           )}
         </div>
 
-        {!isUser && message.marketData ? (
-          <MarketCard data={message.marketData} />
+        {!isUser && message.stockQuote ? (
+          <MarketCard data={message.stockQuote} />
         ) : null}
       </div>
     </div>

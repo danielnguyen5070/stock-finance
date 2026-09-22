@@ -1,6 +1,6 @@
-# Market AI
+# Market AI — Frontend
 
-Simple Next.js chat UI for stock & crypto questions. Uses mock streaming for now — designed to plug into a Python FastAPI SSE API later.
+Next.js chat UI that streams replies from the FastAPI SSE endpoint.
 
 ## Stack
 
@@ -10,8 +10,11 @@ Simple Next.js chat UI for stock & crypto questions. Uses mock streaming for now
 
 ## Getting started
 
+Run the backend first (`uvicorn` on port 8000), then:
+
 ```bash
 cd frontend
+cp .env.example .env.local   # optional; defaults to http://127.0.0.1:8000
 npm install
 npm run dev
 ```
@@ -21,16 +24,13 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Project layout
 
 - `src/app` — App Router pages
-- `src/components/chat` — `ChatMessage`, `ChatInput`, `ToolStatus`, `MarketCard`, `ChatView`
-- `src/lib/chat` — mock stream client (`streamChat`) and sample quotes
+- `src/components/chat` — chat UI components
+- `src/lib/api/chat.ts` — SSE client for `POST /chat/stream`
 - `src/types/chat.ts` — shared message / stream event types
 
-## Connecting FastAPI later
+## SSE events consumed
 
-Keep the `ChatStreamEvent` shape in `src/types/chat.ts` and swap the body of `streamChat` in `src/lib/chat/client.ts` for an SSE/`fetch` stream against your API. The React UI already handles:
-
-- `tool_status`
+- `tool_start` / `tool_result`
 - `token`
-- `market_data`
 - `done`
 - `error`

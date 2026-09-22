@@ -20,6 +20,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+The UI streams from `POST http://127.0.0.1:8000/chat/stream` (set `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local` if needed).
+
 ## Backend
 
 ```bash

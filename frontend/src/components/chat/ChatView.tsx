@@ -5,18 +5,48 @@ import { useEffect, useRef, useState } from "react";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ToolStatus } from "@/components/chat/ToolStatus";
-import { streamChat, SUGGESTED_PROMPTS } from "@/lib/chat";
-import type { ChatMessage as ChatMessageType, ToolStatusLabel } from "@/types/chat";
+import { streamChat } from "@/lib/api/chat";
+import { SUGGESTED_PROMPTS } from "@/lib/chat/prompts";
+import type {
+  ChatMessage as ChatMessageType,
+  StockQuote,
+  ToolStatusLabel,
+} from "@/types/chat";
 
 function createId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function toolStatusLabel(tool: string): ToolStatusLabel {
+  switch (tool) {
+    case "get_symbol":
+      return "Finding stock symbol...";
+    case "get_stock_price":
+      return "Getting stock price...";
+    default:
+      return "Working...";
+  }
+}
+
+function isStockQuote(data: unknown): data is StockQuote {
+  if (typeof data !== "object" || data === null) return false;
+  const record = data as Record<string, unknown>;
+  return (
+    typeof record.symbol === "string" &&
+    typeof record.timestamp === "string" &&
+    typeof record.open === "number" &&
+    typeof record.high === "number" &&
+    typeof record.low === "number" &&
+    typeof record.close === "number" &&
+    typeof record.volume === "number"
+  );
 }
 
 const WELCOME_MESSAGE: ChatMessageType = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi — I'm **Market AI**. Ask me about stock or crypto prices.\n\nTry `AAPL`, `TSLA`, `BTC`, or `ETH`.",
+    "Hi — I'm **Market AI**. Ask me about stock prices.\n\nTry `Nvidia`, `Apple`, or `What's the price of AAPL?`.",
   createdAt: new Date().toISOString(),
 };
 
@@ -35,6 +65,18 @@ export function ChatView() {
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
+
+  function stopGeneration() {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setToolStatus(null);
+    setIsLoading(false);
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.isStreaming ? { ...message, isStreaming: false } : message
+      )
+    );
+  }
 
   async function sendMessage(raw: string) {
     const content = raw.trim();
@@ -67,62 +109,68 @@ export function ChatView() {
 
     await streamChat(content, {
       signal: controller.signal,
-      onEvent: (event) => {
-        switch (event.type) {
-          case "tool_status":
-            setToolStatus(event.status);
-            break;
-          case "token":
-            setMessages((prev) =>
-              prev.map((message) =>
-                message.id === assistantId
-                  ? {
-                      ...message,
-                      content: message.content + event.content,
-                    }
-                  : message
-              )
-            );
-            break;
-          case "market_data":
-            setMessages((prev) =>
-              prev.map((message) =>
-                message.id === assistantId
-                  ? { ...message, marketData: event.data }
-                  : message
-              )
-            );
-            break;
-          case "error":
-            setMessages((prev) =>
-              prev.map((message) =>
-                message.id === assistantId
-                  ? {
-                      ...message,
-                      content:
-                        message.content ||
-                        `Something went wrong: ${event.message}`,
-                      isStreaming: false,
-                    }
-                  : message
-              )
-            );
-            break;
-          case "done":
-            setMessages((prev) =>
-              prev.map((message) =>
-                message.id === assistantId
-                  ? { ...message, isStreaming: false }
-                  : message
-              )
-            );
-            break;
+      onToolStart: (tool) => {
+        setToolStatus(toolStatusLabel(tool));
+      },
+      onToolResult: (tool, data) => {
+        if (tool === "get_stock_price" && isStockQuote(data)) {
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === assistantId
+                ? { ...message, stockQuote: data }
+                : message
+            )
+          );
         }
+        setToolStatus(null);
+      },
+      onToken: (token) => {
+        setToolStatus(null);
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantId
+              ? { ...message, content: message.content + token }
+              : message
+          )
+        );
+      },
+      onDone: () => {
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantId
+              ? { ...message, isStreaming: false }
+              : message
+          )
+        );
+      },
+      onError: (errorMessage) => {
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantId
+              ? {
+                  ...message,
+                  content:
+                    message.content ||
+                    `Something went wrong: ${errorMessage}`,
+                  isStreaming: false,
+                }
+              : message
+          )
+        );
       },
     });
 
-    setToolStatus(null);
-    setIsLoading(false);
+    if (!controller.signal.aborted) {
+      setToolStatus(null);
+      setIsLoading(false);
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === assistantId
+            ? { ...message, isStreaming: false }
+            : message
+        )
+      );
+    }
   }
 
   return (
@@ -159,6 +207,7 @@ export function ChatView() {
         value={input}
         onChange={setInput}
         onSubmit={() => sendMessage(input)}
+        onStop={stopGeneration}
         isLoading={isLoading}
       />
     </div>

@@ -23,12 +23,10 @@ _PREFERRED_QUOTE_TYPES = ("EQUITY",)
 def get_symbol(company: str, *, settings: Settings | None = None) -> str:
     """Resolve a company name to a stock ticker via Yahoo Finance search.
 
-    Uses ``yfinance.Search``, which calls Yahoo's
-    ``/v1/finance/search`` endpoint under the hood.
+    Uses Yahoo's ``/v1/finance/search`` endpoint under the hood.
 
     Args:
         company: Company name or partial name (e.g. ``"Nvidia"``).
-        settings: Optional settings override (timeouts / future providers).
 
     Returns:
         Ticker symbol string (e.g. ``"NVDA"``).
@@ -73,10 +71,7 @@ def get_stock_price(symbol: str, *, settings: Settings | None = None) -> StockPr
     """Fetch the latest daily OHLCV bar for a ticker via ``yfinance``.
 
     Args:
-        symbol: Stock ticker (e.g. ``"NVDA"``).
-        settings: Optional settings override (unused today; reserved for
-            timeouts / provider switches). Kept for API symmetry with
-            ``get_symbol`` and a future ``get_crypto_price``.
+        symbol: Stock ticker symbol (e.g. ``"NVDA"``).
 
     Returns:
         Dict with ``symbol``, ``timestamp``, ``open``, ``high``, ``low``,

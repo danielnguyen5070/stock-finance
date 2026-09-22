@@ -39,6 +39,8 @@ With ``DEEPSEEK_API_KEY`` set in `.env`:
 ```bash
 python scripts/test_llm.py
 python scripts/test_llm.py --prompt "Say hello in one word"
+python scripts/test_agent.py
+python scripts/test_agent.py --question "What is Apple's stock price?" --verbose
 ```
 
 ## Layout
@@ -49,12 +51,16 @@ backend/
 │   ├── main.py              # FastAPI app
 │   ├── config.py            # pydantic-settings / .env
 │   ├── exceptions.py
-│   ├── ai/openai_client.py  # DeepSeek via OpenAI SDK
+│   ├── ai/
+│   │   ├── openai_client.py # DeepSeek via OpenAI SDK
+│   │   ├── tools.py         # OpenAI tool defs + FUNCTION_MAP
+│   │   └── agent.py         # Tool-calling loop (run_agent)
 │   ├── api/routes/stocks.py # HTTP endpoints
 │   ├── models/stock.py      # TypedDict shapes
 │   └── services/stock.py    # get_symbol, get_stock_price
 ├── scripts/test_stock.py    # CLI smoke test (stocks)
 ├── scripts/test_llm.py      # CLI smoke test (DeepSeek)
+├── scripts/test_agent.py    # CLI smoke test (tool-calling agent)
 ├── .env.example
 └── requirements.txt
 ```
